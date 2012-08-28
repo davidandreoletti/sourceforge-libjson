@@ -1,0 +1,67 @@
+--- src/libjson/makefile	2012-05-30 05:15:42.000000000 +0800
++++ patch/libjson/makefile	2012-08-12 14:03:47.000000000 +0800
+@@ -158,7 +158,7 @@
+ CXX             ?= c++
+ AR              ?= ar
+ PIC             ?= PIC
+-BUILD_TYPE      ?= "default"
++BUILD_TYPE      ?= "default" # Build parameters specified by libjson.sh
+ SHARED          ?= "1"
+ 
+ 
+@@ -167,12 +167,12 @@
+ include_path     = $(prefix)/$(includedir)
+ 
+ 
+-# Usage check
+-ifdef CXXFLAGS
+-ifdef BUILD_TYPE
+-	$(error CXXFLAGS and BUILD_TYPE are mutually exclusive)
+-endif
+-endif
++## Usage check
++#ifdef CXXFLAGS
++#ifdef BUILD_TYPE
++#	$(error CXXFLAGS and BUILD_TYPE are mutually exclusive)
++#endif
++#endif
+ 
+ # BUILD_TYPE specific settings
+ ifeq ($(BUILD_TYPE), small)
+@@ -181,7 +181,7 @@
+ 	CXXFLAGS     = $(cxxflags_debug)
+ 	libname     := $(libname_debug)
+ else
+-	CXXFLAGS    ?= $(cxxflags_default)
++	CXXFLAGS    ?= $(CXXFLAGSTMP) $(cxxflags_default)
+ endif
+ 
+ # SHARED specific settings
+@@ -208,7 +208,7 @@
+ 
+ banner:
+ 	@echo "============================================================"
+-	@echo "libjson version: "$(major_version).$(minor_version) "target: "$(target) "OS: "$(OS)
++	@echo "libjson version: "$(major_version).$(minor_version)
+ 	@echo "============================================================"
+ 
+ installdirs: banner
+@@ -237,7 +237,7 @@
+ 
+ # Compile object files
+ $(objdir)/%.o: $(srcdir)/%.cpp
+-	$(CXX) $< -o $@ -c $(CXXFLAGS)
++	$(CXX) $(CXXFLAGS) -c $< -o $@
+ 
+ ifeq ($(SHARED),1)
+ install: banner install_headers $(lib_target)
+@@ -266,7 +266,8 @@
+ 	cp -r ./$(srcdir)/JSONDefs $(include_path)/$(libname_hdr)/$(srcdir)
+ 	chmod -R a+r $(include_path)/$(libname_hdr)
+ 	find  $(include_path)/$(libname_hdr) -type d -exec chmod a+x {} \;
+-	cp -rv $(srcdir)/Dependencies/ $(include_path)/$(libname_hdr)/$(srcdir)
++	#cp -rv $(srcdir)/Dependencies/ $(include_path)/$(libname_hdr)/$(srcdir)
++	cp -rv ./$(srcdir)/../Dependencies $(include_path)/$(libname_hdr)/$(srcdir)/../
+ 	@echo "Install header files: Done."
+ 
+ clean: banner
