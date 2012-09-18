@@ -15,7 +15,7 @@ INSTALLATION:
 ================================================================================
 
 - Run make
-- Library/framework available under ./bin
+- Library/framework available under ./prefix
 
 DOCUMENTATION
 ================================================================================

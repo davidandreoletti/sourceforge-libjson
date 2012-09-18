@@ -15,9 +15,8 @@ MAKEFILE_PREFIXDIR_PATH="$(ROOT_MAKEFILE_PATH)/build"
 MAKEFILE_FRAMEWORKDIR_PATH="$(MAKEFILE_PREFIXDIR_PATH)/framework"
 
 # Location where release universal binaries will be installed (ready for dev to use)
-BIN_PATH="$(CURDIR)/bin"
-BIN_IOS_PATH="$(BIN_PATH)/ios"
-RELEASE_PATH="$(BIN_PATH)/universalbinary/release-mode"
+PREFIX_PATH="$(CURDIR)/prefix"
+RELEASE_PATH="$(PREFIX_PATH)"
 # Location where universal binary release libraries/framework will be stored
 RELEASE_FRAMEWORK_PATH=${RELEASE_PATH}/framework
 RELEASE_LIB_PATH="$(RELEASE_PATH)/lib"
@@ -36,4 +35,4 @@ build:
 # Cleans libjson library
 clean:
 		export PREFIXDIR=$(MAKEFILE_PREFIXDIR_PATH) && export FRAMEWORKDIR=${MAKEFILE_FRAMEWORKDIR_PATH} && export LIBJSON_OPTION_BUILD=false && export LIBJSON_OPTION_CLEAN=true && export IPHONE_SDKVERSION=$(IPHONE_SDK_VERSION) && bash ./libjson.sh
-		rm -rvf $(BIN_PATH)
+		rm -rvf $(PREFIX_PATH)

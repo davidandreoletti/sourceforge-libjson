@@ -1,5 +1,9 @@
 Release 1.0.0f0:
 
+OJSNLCPP-3: Changed default build lib and framework location to ./prefix
+
+OJSNLCPP-2: Ignored directories generated at build time
+
 OJSNLCPP-1: Build libjson.framework iOS platforms (armv6/armv7/i4386) with libjson 7.6.1 (Successfully tested on SDK 5.1 but should work on SDK 4.3/SDK 5.0).
 - iOS paltform:
     - builds static universal xcode framework (for x86/armv6/armv7)
