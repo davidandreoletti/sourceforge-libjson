@@ -1,3 +1,7 @@
+Release 1.1.0f0:
+
+OJSNLCPP-5: Added project licence
+
 Release 1.0.0f0:
 
 OJSNLCPP-3: Changed default build lib and framework location to ./prefix
