@@ -47,7 +47,7 @@
 : ${BUILDDIR:=`pwd`/build}
 : ${BUILDTMPDIR:=${BUILDDIR}/tmp}
 : ${PREFIXDIR:=`pwd`/prefix}
-: ${FRAMEWORKDIR:=`pwd`/framework}
+: ${FRAMEWORKDIR:=${PREFIXDIR}/framework}
 
 LIBJSON_ZIPBALL=$TARBALLDIR/libjson.zip
 LIBJSON_SRC=$SRCDIR/libjson
