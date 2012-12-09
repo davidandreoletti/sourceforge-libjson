@@ -26,9 +26,9 @@
 #
 #                           Default value: 7.6.1
 #
-#    IPHONE_SDKVERSION:     iPhone SDK version.
+#    IPHONE_SDKVERSION:     iPhone SDK version.  If not define, default value is used.
 #
-#                           Default value: 5.1
+#                           Default value: Latest (i.e latest SDK available on the host machine)
 #
 #    LIBJSON_OPTION_BUILD:  Builds libjson. Valid values: "true" or "false"
 #
@@ -37,11 +37,18 @@
 #    LIBJSON_OPTION_CLEAN:  Cleans building directory. Valid values: "true" or "false"
 #
 #                           Default value: true
+# Note:
+#  - If Xcode 4.5+ is used, library will NOT have support for armv6
 #
 #===============================================================================
 
 : ${LIBJSON_VERSION:=7.6.1}
-: ${IPHONE_SDKVERSION:=5.1}
+: ${IPHONE_SDKVERSION:="Latest"}
+if [ "$IPHONE_SDKVERSION" == "Latest" ]
+then
+	IPHONE_SDKVERSION=`xcodebuild -showsdks | grep iphoneos | sort | tail -n 1 | awk '{ print $2}'`
+fi
+
 : ${TARBALLDIR:=`pwd`}
 : ${SRCDIR:=`pwd`/src}
 : ${BUILDDIR:=`pwd`/build}

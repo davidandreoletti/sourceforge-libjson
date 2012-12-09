@@ -4,7 +4,7 @@
 #
 all: clean build
 
-IPHONE_SDK_VERSION=5.1
+IPHONE_SDK_VERSION=Latest
 
 # Current directory
 ROOT_MAKEFILE_PATH="$(CURDIR)"

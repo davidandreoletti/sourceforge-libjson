@@ -1,3 +1,7 @@
+Release 1.0.3f0:
+
+OJSNLCPP-7: Changed default iOS SDK to latest
+
 Release 1.0.2f0:
 
 OJSNLCPP-6: Fixed framework/include dir and libjson.a not copied into prefix dir
