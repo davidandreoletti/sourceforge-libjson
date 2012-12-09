@@ -82,11 +82,22 @@ SIM_DEV_DIR=${DEVELOPER_DIR_PATH}/Platforms/iPhoneSimulator.platform/Developer
 #: ${COMPILER_CC_SIM_PATH:="${SIM_DEV_DIR}/usr/bin/gcc-4.2"}
 
 # Clang
-: ${COMPILER_CXX_ARM_PATH:="${ARM_DEV_DIR}/usr/bin/clang++"}
-: ${COMPILER_CXX_SIM_PATH:="${SIM_DEV_DIR}/usr/bin/clang++"}
-: ${COMPILER_CC_ARM_PATH:="${ARM_DEV_DIR}/usr/bin/clang"}
-: ${COMPILER_CC_SIM_PATH:="${SIM_DEV_DIR}/usr/bin/clang"}
-
+# Check Clang compiler location. It has changed since Xcode 4.5
+CLANG="${DEVELOPER_DIR_PATH}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++"
+if [ -f "$CLANG" ]
+then
+: ${COMPILER_CXX_ARM_PATH:="${DEVELOPER_DIR_PATH}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++"}
+: ${COMPILER_CXX_SIM_PATH:="${DEVELOPER_DIR_PATH}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++"}
+: ${COMPILER_CC_ARM_PATH:="${DEVELOPER_DIR_PATH}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"}
+: ${COMPILER_CC_SIM_PATH:="${DEVELOPER_DIR_PATH}/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"}
+: ${IS_XCODE_45_OR_PLUS:=true}
+else
+: ${COMPILER_CXX_ARM_PATH:="${DEVELOPER_DIR_PATH}/usr/bin/clang++"}
+: ${COMPILER_CXX_SIM_PATH:="${DEVELOPER_DIR_PATH}/usr/bin/clang++"}
+: ${COMPILER_CC_ARM_PATH:="${DEVELOPER_DIR_PATH}/usr/bin/clang"}
+: ${COMPILER_CC_SIM_PATH:="${DEVELOPER_DIR_PATH}/usr/bin/clang"}
+: ${IS_XCODE_45_OR_PLUS:=false}
+fi
 # Compiler Version
 compilerFileName=`basename "$COMPILER_CXX_ARM_PATH"`
 if [[ $compilerFileName =~ ^g\+\+ ]]
@@ -390,9 +401,12 @@ buildLibjsonForiPhoneOS()
         ;;
     esac
 
-    setenv_armv6
-    buildLibJSONWithMakefile "armv6"
-
+	if [ $IS_XCODE_45_OR_PLUS == false ]
+	then
+		setenv_armv6
+		buildLibJSONWithMakefile "armv6"
+	fi
+	
     setenv_armv7
     buildLibJSONWithMakefile "armv7"
 
@@ -420,19 +434,35 @@ lipoficate()
     fi
 
     for currentLibName in $libsNames; do
-        ARMV6=`getLibraryFilePath "$NAME" "$currentLibName" "armv6" "$EXTRA_ARM_COMPILE_FLAGS"`
+		if [ $IS_XCODE_45_OR_PLUS == false ]
+		then
+			ARMV6=`getLibraryFilePath "$NAME" "$currentLibName" "armv6" "$EXTRA_ARM_COMPILE_FLAGS"`
+		else
+			ARMV6=""
+		fi
         ARMV7=`getLibraryFilePath "$NAME" "$currentLibName" "armv7" "$EXTRA_ARM_COMPILE_FLAGS"`
         I386=`getLibraryFilePath "$NAME" "$currentLibName" "i386" "$EXTRA_SIM_COMPILE_FLAGS"`
 
         mkdir -p $PREFIXDIR
-        lipo \
-            -create \
-            "$ARMV6" \
-            "$ARMV7" \
-            "$I386" \
-            -o          "$PREFIXDIR/libjson.a" \
-        || abort "Lipo $1 failed"
-
+		
+		if [ $IS_XCODE_45_OR_PLUS == false ]
+		then
+			lipo \
+            	-create \
+				"$ARMV6" \
+				"$ARMV7" \
+				"$I386" \
+				-o          "$PREFIXDIR/libjson.a" \
+        	|| abort "Lipo $1 failed"
+		else
+			lipo \
+            	-create \
+				"$ARMV7" \
+				"$I386" \
+				-o          "$PREFIXDIR/libjson.a" \
+        	|| abort "Lipo $1 failed"
+		fi
+		
     done
 }
 
@@ -477,13 +507,23 @@ buildFramework()
     FRAMEWORK_INSTALL_NAME=$FRAMEWORK_BUNDLE/Versions/$FRAMEWORK_VERSION/$FRAMEWORK_NAME
 
     echo "Lipoing library into $FRAMEWORK_INSTALL_NAME..."
-    lipo \
-        -create \
-        -arch armv6 "$BUILDTMPDIR/armv6/libjson.a" \
-        -arch armv7 "$BUILDTMPDIR/armv7/libjson.a" \
-        -arch i386  "$BUILDTMPDIR/i386/libjson.a" \
-        -o          "$FRAMEWORK_INSTALL_NAME" \
-    || abort "Lipo $1 failed"
+	if [ $IS_XCODE_45_OR_PLUS == false ]
+	then
+		lipo \
+        	-create \
+			-arch armv6 "$BUILDTMPDIR/armv6/libjson.a" \
+			-arch armv7 "$BUILDTMPDIR/armv7/libjson.a" \
+			-arch i386  "$BUILDTMPDIR/i386/libjson.a" \
+        	-o          "$FRAMEWORK_INSTALL_NAME" \
+		|| abort "Lipo $1 failed"
+	else
+		lipo \
+        	-create \
+			-arch armv7 "$BUILDTMPDIR/armv7/libjson.a" \
+			-arch i386  "$BUILDTMPDIR/i386/libjson.a" \
+        	-o          "$FRAMEWORK_INSTALL_NAME" \
+		|| abort "Lipo $1 failed"
+	fi
 
     echo "Framework: Copying includes..."
     cp -r ${PREFIXDIR}/include/libjson/ $FRAMEWORK_BUNDLE/Headers
